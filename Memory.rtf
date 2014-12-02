@@ -1,0 +1,77 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1265\cocoasubrtf210
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
+
+\f0\fs24 \cf0 # implementation of the card game - Memory\
+# Jessi S. on Oct 24, 2014\
+# In this game you can only turn over two cards at a time\
+# The goal is to pair all the like cards together\
+\
+\
+import simplegui\
+import random\
+\
+turn = 0\
+state = 0\
+\
+cards = range(8)\
+cards.extend(cards)\
+\
+# helper function to initialize globals\
+def new_game():\
+    global turn, state, exposed, deck\
+    turn = 0\
+    state = 0\
+    random.shuffle(cards)\
+    exposed = [False]*16 # all cards face down\
+    deck = list(enumerate(cards)) # list of tuple [(card position, card value),...]\
+    label.set_text("Turns = " + str(turn)) # changing the score\
+     \
+# define event handlers\
+def mouseclick(pos):\
+    global state, card_1, card_2, turn\
+    pick = int(pos[0]/50) # indicates clicked card position\
+    if state == 0:\
+        card_1 = pick\
+        exposed[pick] = True # expose card choice\
+        state = 1\
+    elif state == 1:\
+        card_2 = pick\
+        exposed[pick] = True # expose card choice\
+        state = 2 \
+        turn += 1\
+        label.set_text("Turns =" + str(turn))\
+    else:\
+        if deck[card_1][1] != deck[card_2][1]: # if cards don't match flip back over\
+            exposed[card_1] = False\
+            exposed[card_2] = False\
+        state = 1  \
+        card_1 = pick\
+        exposed[pick] = True \
+       \
+                        \
+# cards are logically 50x100 pixels in size    \
+def draw(canvas):\
+    for i in deck: # i will be a tuple -> (pos, card)\
+        n = i[0] # position of card\
+        card = i[1] # card\
+        if exposed[n]:\
+            canvas.draw_text(str(card), (15+50*n ,60), 36, "Red") # draw card value\
+        else:\
+            canvas.draw_polygon([(50*n,0), (50*n,100) ,(50+50*n,100), (50+50*n,0)], 3,"White", "Green") # draw card\
+     \
+\
+# create frame and add a button and labels\
+frame = simplegui.create_frame("Memory", 800, 100)\
+frame.add_button("Reset", new_game)\
+label = frame.add_label("Turns = 0")\
+\
+# register event handlers\
+frame.set_mouseclick_handler(mouseclick)\
+frame.set_draw_handler(draw)\
+\
+# get things rolling\
+new_game()\
+frame.start()}
